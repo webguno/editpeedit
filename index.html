@@ -459,6 +459,46 @@
         .delay-3 {
             animation-delay: 0.6s;
         }
+
+
+
+
+
+
+
+           .go-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background-color: #4361ee;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+    
+    .go-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .go-to-top:hover {
+        background-color: #3a56d4;
+        transform: translateY(-3px);
+    }
+    
+    .go-to-top i {
+        font-size: 20px;
+    }
     </style>
 </head>
 <body>
@@ -680,12 +720,53 @@
                     </ul>
                 </div>
             </div>
+
+
+
+            
+<div class="go-to-top" id="goToTop">
+    <i class="fas fa-arrow-up"></i>
+</div>
+
+
+
+
+            
             <div class="footer-bottom">
                 <p>&copy; 2023 Fix Kar Lo Beta. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+
+
+
+
+
+
+<script>
+    // Show/hide button based on scroll position
+    window.addEventListener('scroll', function() {
+        const goToTopButton = document.getElementById('goToTop');
+        if (window.pageYOffset > 300) {
+            goToTopButton.classList.add('show');
+        } else {
+            goToTopButton.classList.remove('show');
+        }
+    });
+    
+    // Smooth scroll to top
+    document.getElementById('goToTop').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+</script>
+
+
+    
     <script>
         // Mobile Menu Toggle
         const mobileMenuBtn = document.querySelector('.mobile-menu-btn');

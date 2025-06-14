@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Image Blur Tool</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-section {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .upload-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .drop-area {
+            width: 100%;
+            height: 300px;
+            border: 2px dashed var(--accent-color);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .drop-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .drop-area p {
+            margin: 1rem;
+            color: var(--dark-color);
+        }
+
+        .drop-area .icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: var(--secondary-color);
+            transform: scale(1.1);
+        }
+
+        .slider-value {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d1146a;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+
+        .result-section {
+            position: relative;
+        }
+
+        .result-actions {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .result-section:hover .result-actions {
+            opacity: 1;
+        }
+
+        .blur-type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .blur-type-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .blur-type-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .blur-type-btn:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card .icon {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #6c757d;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: var(--border-radius);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-color);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced Image Blur Tool</h1>
+            <p class="subtitle">Enhance your images with professional blur effects</p>
+        </header>
+
+        <div class="app-container">
+            <div class="upload-section">
+                <div id="dropArea" class="drop-area">
+                    <div class="icon">📁</div>
+                    <p>Drag & drop your image here or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden">
+                </div>
+                <div class="btn-group">
+                    <button id="uploadBtn" class="btn btn-primary">
+                        <span class="btn-icon">📤</span> Upload Image
+                    </button>
+                    <button id="sampleBtn" class="btn btn-secondary">
+                        <span class="btn-icon">🖼️</span> Use Sample
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Blur Type</h3>
+                    <div class="blur-type-selector">
+                        <button id="gaussianBtn" class="blur-type-btn active">Gaussian</button>
+                        <button id="stackBlurBtn" class="blur-type-btn">Stack</button>
+                        <button id="boxBlurBtn" class="blur-type-btn">Box</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Blur Intensity <span class="tooltip">?
+                        <span class="tooltiptext">Higher values create stronger blur effects</span>
+                    </span></h3>
+                    <div class="slider-container">
+                        <input type="range" id="blurSlider" class="slider" min="0" max="100" value="10">
+                        <span id="blurValue" class="slider-value">10</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Blur Region</h3>
+                    <div class="btn-group">
+                        <button id="fullImageBtn" class="btn btn-secondary active">Full Image</button>
+                        <button id="selectRegionBtn" class="btn btn-secondary">Select Region</button>
+                    </div>
+                </div>
+
+                <div class="control-group hidden" id="regionControls">
+                    <h3>Region Selection</h3>
+                    <div class="slider-container">
+                        <label>X:</label>
+                        <input type="range" id="xSlider" class="slider" min="0" max="100" value="25">
+                        <span id="xValue" class="slider-value">25%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label>Y:</label>
+                        <input type="range" id="ySlider" class="slider" min="0" max="100" value="25">
+                        <span id="yValue" class="slider-value">25%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label>Width:</label>
+                        <input type="range" id="widthSlider" class="slider" min="0" max="100" value="50">
+                        <span id="widthValue" class="slider-value">50%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label>Height:</label>
+                        <input type="range" id="heightSlider" class="slider" min="0" max="100" value="50">
+                        <span id="heightValue" class="slider-value">50%</span>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button id="applyBtn" class="btn btn-primary">
+                        <span class="btn-icon">✨</span> Apply Blur
+                    </button>
+                    <button id="resetBtn" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span> Reset
+                    </button>
+                    <button id="downloadBtn" class="btn btn-success" disabled>
+                        <span class="btn-icon">💾</span> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3>Fast Processing</h3>
+                <p>Our advanced algorithms process your images quickly without compromising quality.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Privacy Focused</h3>
+                <p>All processing happens in your browser. Your images never leave your device.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🎨</div>
+                <h3>Multiple Effects</h3>
+                <p>Choose from different blur types to achieve the perfect look for your image.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 Advanced Image Blur Tool | All images are processed client-side</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const blurSlider = document.getElementById('blurSlider');
+            const blurValue = document.getElementById('blurValue');
+            const applyBtn = document.getElementById('applyBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const fullImageBtn = document.getElementById('fullImageBtn');
+            const selectRegionBtn = document.getElementById('selectRegionBtn');
+            const regionControls = document.getElementById('regionControls');
+            const gaussianBtn = document.getElementById('gaussianBtn');
+            const stackBlurBtn = document.getElementById('stackBlurBtn');
+            const boxBlurBtn = document.getElementById('boxBlurBtn');
+            
+            // Region sliders
+            const xSlider = document.getElementById('xSlider');
+            const ySlider = document.getElementById('ySlider');
+            const widthSlider = document.getElementById('widthSlider');
+            const heightSlider = document.getElementById('heightSlider');
+            const xValue = document.getElementById('xValue');
+            const yValue = document.getElementById('yValue');
+            const widthValue = document.getElementById('widthValue');
+            const heightValue = document.getElementById('heightValue');
+
+            // State variables
+            let originalImage = null;
+            let currentImage = null;
+            let blurType = 'gaussian';
+            let blurWholeImage = true;
+            let isLoading = false;
+
+            // Event Listeners
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFiles);
+            sampleBtn.addEventListener('click', loadSampleImage);
+            dropArea.addEventListener('click', () => fileInput.click());
+            dropArea.addEventListener('dragover', handleDragOver);
+            dropArea.addEventListener('dragleave', handleDragLeave);
+            dropArea.addEventListener('drop', handleDrop);
+            blurSlider.addEventListener('input', updateBlurValue);
+            applyBtn.addEventListener('click', applyBlur);
+            resetBtn.addEventListener('click', resetImage);
+            downloadBtn.addEventListener('click', downloadImage);
+            fullImageBtn.addEventListener('click', () => toggleBlurRegion(true));
+            selectRegionBtn.addEventListener('click', () => toggleBlurRegion(false));
+            
+            // Blur type buttons
+            gaussianBtn.addEventListener('click', () => setBlurType('gaussian'));
+            stackBlurBtn.addEventListener('click', () => setBlurType('stack'));
+            boxBlurBtn.addEventListener('click', () => setBlurType('box'));
+
+            // Region sliders
+            xSlider.addEventListener('input', updateRegionValues);
+            ySlider.addEventListener('input', updateRegionValues);
+            widthSlider.addEventListener('input', updateRegionValues);
+            heightSlider.addEventListener('input', updateRegionValues);
+
+            // Functions
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.add('highlight');
+            }
+
+            function handleDragLeave(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.remove('highlight');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.remove('highlight');
+                
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    handleFiles({ target: { files } });
+                }
+            }
+
+            function handleFiles(e) {
+                const file = e.target.files[0];
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file.');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    loadImage(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function loadSampleImage() {
+                const sampleImages = [
+                    'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+                    'https://images.unsplash.com/photo-1519125323398-675f0ddb6308',
+                    'https://images.unsplash.com/photo-1429087969512-1e85aab2683d'
+                ];
+                const randomImage = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+                loadImage(randomImage);
+            }
+
+            function loadImage(src) {
+                isLoading = true;
+                showLoading();
+                
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = function() {
+                    originalImage = img;
+                    currentImage = img;
+                    displayImage(img);
+                    resetControls();
+                    isLoading = false;
+                    hideLoading();
+                    downloadBtn.disabled = false;
+                };
+                img.onerror = function() {
+                    alert('Error loading image. Please try another one.');
+                    isLoading = false;
+                    hideLoading();
+                };
+                img.src = src;
+            }
+
+            function displayImage(img) {
+                dropArea.innerHTML = '';
+                dropArea.appendChild(img);
+            }
+
+            function updateBlurValue() {
+                blurValue.textContent = blurSlider.value;
+            }
+
+            function resetControls() {
+                blurSlider.value = 10;
+                blurValue.textContent = '10';
+                xSlider.value = 25;
+                ySlider.value = 25;
+                widthSlider.value = 50;
+                heightSlider.value = 50;
+                updateRegionValues();
+            }
+
+            function resetImage() {
+                if (originalImage) {
+                    currentImage = originalImage;
+                    displayImage(originalImage);
+                    resetControls();
+                }
+            }
+
+            function toggleBlurRegion(fullImage) {
+                blurWholeImage = fullImage;
+                if (fullImage) {
+                    fullImageBtn.classList.add('active');
+                    selectRegionBtn.classList.remove('active');
+                    regionControls.classList.add('hidden');
+                } else {
+                    fullImageBtn.classList.remove('active');
+                    selectRegionBtn.classList.add('active');
+                    regionControls.classList.remove('hidden');
+                }
+            }
+
+            function setBlurType(type) {
+                blurType = type;
+                gaussianBtn.classList.toggle('active', type === 'gaussian');
+                stackBlurBtn.classList.toggle('active', type === 'stack');
+                boxBlurBtn.classList.toggle('active', type === 'box');
+            }
+
+            function updateRegionValues() {
+                xValue.textContent = `${xSlider.value}%`;
+                yValue.textContent = `${ySlider.value}%`;
+                widthValue.textContent = `${widthSlider.value}%`;
+                heightValue.textContent = `${heightSlider.value}%`;
+            }
+
+            function showLoading() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading';
+                loadingDiv.innerHTML = '<div class="spinner"></div>';
+                dropArea.appendChild(loadingDiv);
+            }
+
+            function hideLoading() {
+                const loadingDiv = dropArea.querySelector('.loading');
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+            }
+
+            function applyBlur() {
+                if (!currentImage || isLoading) return;
+                
+                isLoading = true;
+                showLoading();
+                
+                // Simulate processing delay (in a real app, this would be the actual blur processing)
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = currentImage.width;
+                    canvas.height = currentImage.height;
+                    
+                    // Draw original image
+                    ctx.drawImage(currentImage, 0, 0);
+                    
+                    // Apply blur based on settings
+                    const blurAmount = parseInt(blurSlider.value);
+                    
+                    if (blurWholeImage) {
+                        // Apply blur to whole image
+                        applyBlurToCanvas(ctx, canvas, 0, 0, canvas.width, canvas.height, blurAmount);
+                    } else {
+                        // Apply blur to selected region
+                        const x = (parseInt(xSlider.value) / 100) * canvas.width;
+                        const y = (parseInt(ySlider.value) / 100) * canvas.height;
+                        const width = (parseInt(widthSlider.value) / 100) * canvas.width;
+                        const height = (parseInt(heightSlider.value) / 100) * canvas.height;
+                        
+                        applyBlurToCanvas(ctx, canvas, x, y, width, height, blurAmount);
+                    }
+                    
+                    // Create new image from canvas
+                    const blurredImage = new Image();
+                    blurredImage.onload = function() {
+                        currentImage = blurredImage;
+                        displayImage(blurredImage);
+                        isLoading = false;
+                        hideLoading();
+                    };
+                    blurredImage.src = canvas.toDataURL('image/png');
+                }, 500);
+            }
+
+            function applyBlurToCanvas(ctx, canvas, x, y, width, height, radius) {
+                // This is a simplified blur implementation
+                // In a real app, you would use more sophisticated blur algorithms
+                
+                // Save the region to blur
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(x, y, width, height);
+                ctx.clip();
+                
+                // Apply blur effect
+                if (blurType === 'gaussian') {
+                    // Simple approximation of Gaussian blur
+                    for (let i = 0; i < radius / 5; i++) {
+                        ctx.filter = `blur(${Math.min(5, radius - i * 5)}px)`;
+                        ctx.drawImage(canvas, 0, 0);
+                    }
+                } else if (blurType === 'stack') {
+                    // Stack blur approximation
+                    ctx.filter = `blur(${radius / 2}px)`;
+                    ctx.drawImage(canvas, 0, 0);
+                    ctx.filter = `blur(${radius / 2}px)`;
+                    ctx.drawImage(canvas, 0, 0);
+                } else {
+                    // Box blur
+                    ctx.filter = `blur(${radius}px)`;
+                    ctx.drawImage(canvas, 0, 0);
+                }
+                
+                ctx.restore();
+            }
+
+            function downloadImage() {
+                if (!currentImage) return;
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = currentImage.width;
+                canvas.height = currentImage.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(currentImage, 0, 0);
+                
+                const link = document.createElement('a');
+                link.download = 'blurred-image.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        });
+    </script>
+</body>
+</html>
